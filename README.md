@@ -28,13 +28,6 @@ java -jar target/peer.jar --download <FILE_ID> --bootstrap <HOST>:8001 --port 80
 - 🔍 Automatic peer discovery
 - 🌍 Cross-device support
 
-## 📖 Documentation
-
-- **[SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md)** - Complete system walkthrough
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture
-- [MULTI_DEVICE_SETUP.md](docs/MULTI_DEVICE_SETUP.md) - Cross-device setup
-- [HOW_TO_TEST.md](docs/HOW_TO_TEST.md) - Testing guide
-
 ## 🛠️ Tech Stack
 
 Java 17 | Netty 4.x | Jackson | Maven | SLF4J + Logback
