@@ -9,15 +9,12 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-/**
- * Message containing list of known peers.
- */
+// Response containing list of known peers
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PeerListResponseMessage extends Message {
-
-    private final List<PeerInfo> peers;
+    private final List<PeerInfo> peers;  // List of known peers
 
     @JsonCreator
     public PeerListResponseMessage(@JsonProperty("peers") List<PeerInfo> peers) {

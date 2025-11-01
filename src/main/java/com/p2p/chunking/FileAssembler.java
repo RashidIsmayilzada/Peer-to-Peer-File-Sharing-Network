@@ -10,27 +10,11 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Assembles downloaded chunks back into the original file.
- *
- * Think of this like a jigsaw puzzle solver:
- * - You have pieces (chunks) scattered around
- * - Each piece has a number (index)
- * - You put them in order to recreate the picture (file)
- * - You verify each piece matches (hash check)
- */
+// Assembles downloaded chunks back into the original file
 public class FileAssembler {
     private static final Logger logger = LoggerFactory.getLogger(FileAssembler.class);
 
-    /**
-     * Assembles chunks into a file.
-     *
-     * @param manifest The file manifest with chunk information
-     * @param chunks Array of chunk data (must be in order by index)
-     * @param outputFile Where to write the assembled file
-     * @throws IOException If file operations fail
-     * @throws IllegalArgumentException If chunk verification fails
-     */
+    // Assembles chunks into a file with verification
     public void assembleFile(Manifest manifest, byte[][] chunks, File outputFile) throws IOException {
         logger.info("Assembling file: {} from {} chunks", manifest.getFilename(), chunks.length);
 
@@ -40,7 +24,6 @@ public class FileAssembler {
             );
         }
 
-        // Verify all chunks before writing
         for (int i = 0; i < chunks.length; i++) {
             String expectedHash = manifest.getChunk(i).getHash();
             String actualHash = calculateHash(chunks[i]);
@@ -55,7 +38,6 @@ public class FileAssembler {
             logger.debug("Chunk {} verified: hash matches", i);
         }
 
-        // Write all chunks to file
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             for (int i = 0; i < chunks.length; i++) {
                 fos.write(chunks[i]);
@@ -66,7 +48,6 @@ public class FileAssembler {
         logger.info("File assembled successfully: {} ({} bytes)",
                 outputFile.getName(), outputFile.length());
 
-        // Final verification
         if (outputFile.length() != manifest.getFileSize()) {
             throw new IOException(
                     String.format("File size mismatch: expected %d but got %d",
@@ -75,9 +56,7 @@ public class FileAssembler {
         }
     }
 
-    /**
-     * Calculates SHA-256 hash of data.
-     */
+    // Calculates SHA-256 hash of data
     private String calculateHash(byte[] data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -88,9 +67,7 @@ public class FileAssembler {
         }
     }
 
-    /**
-     * Converts bytes to hexadecimal string.
-     */
+    // Converts bytes to hexadecimal string
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {

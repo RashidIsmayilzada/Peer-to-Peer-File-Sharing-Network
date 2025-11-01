@@ -8,49 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Represents information about a peer in the network.
- * A "peer" is another computer running this P2P software.
- *
- * Think of this as a contact card with:
- * - Name (peerId)
- * - Address (host)
- * - Phone number (port)
- * - Last time you talked (lastSeen)
- */
+// Peer connection information (ID, host, port, available files)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PeerInfo {
-    /**
-     * Unique identifier for this peer (UUID).
-     * Generated when the peer starts up.
-     */
-    private String peerId;
+    private String peerId;                      // Unique peer identifier (UUID)
+    private String host;                        // IP address or hostname
+    private int port;                           // Port number
+    private long lastSeen;                      // Last communication timestamp
+    private List<String> availableFiles = new ArrayList<>();  // File IDs this peer has
 
-    /**
-     * IP address or hostname of the peer (e.g., "192.168.1.100" or "localhost").
-     */
-    private String host;
-
-    /**
-     * Port number the peer is listening on (e.g., 6881).
-     */
-    private int port;
-
-    /**
-     * Timestamp of last successful communication (milliseconds since epoch).
-     */
-    private long lastSeen;
-
-    /**
-     * List of file IDs that this peer has available for sharing.
-     */
-    private List<String> availableFiles = new ArrayList<>();
-
-    /**
-     * Creates a new PeerInfo with current timestamp.
-     */
+    // Creates peer with auto-generated ID
     public PeerInfo(String host, int port) {
         this.peerId = UUID.randomUUID().toString();
         this.host = host;
@@ -59,9 +28,7 @@ public class PeerInfo {
         this.availableFiles = new ArrayList<>();
     }
 
-    /**
-     * Creates a new PeerInfo with all fields.
-     */
+    // Creates peer with specified files
     public PeerInfo(String peerId, String host, int port, List<String> availableFiles) {
         this.peerId = peerId;
         this.host = host;
@@ -70,16 +37,12 @@ public class PeerInfo {
         this.availableFiles = availableFiles != null ? new ArrayList<>(availableFiles) : new ArrayList<>();
     }
 
-    /**
-     * Updates the last seen timestamp to now.
-     */
+    // Updates last seen timestamp to current time
     public void updateLastSeen() {
         this.lastSeen = System.currentTimeMillis();
     }
 
-    /**
-     * Returns a string representation like "host:port".
-     */
+    // Returns address in "host:port" format
     public String getAddress() {
         return host + ":" + port;
     }

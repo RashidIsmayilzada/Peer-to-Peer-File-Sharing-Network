@@ -8,31 +8,14 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-/**
- * HELLO message sent when two peers first connect.
- *
- * Example conversation:
- * Peer A: "Hello! I'm peer-123 and I have files [abc, def]"
- * Peer B: "Hello! I'm peer-456 and I have files [xyz]"
- */
+// HELLO message for peer handshake (contains peer ID, available files, port)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HelloMessage extends Message {
-    /**
-     * The sender's peer ID.
-     */
-    private final String peerId;
-
-    /**
-     * List of file IDs this peer has available for sharing.
-     */
-    private final List<String> availableFiles;
-
-    /**
-     * Port this peer is listening on.
-     */
-    private final int port;
+    private final String peerId;           // Sender's peer ID
+    private final List<String> availableFiles;  // File IDs available for sharing
+    private final int port;                // Listening port
 
     @JsonCreator
     public HelloMessage(

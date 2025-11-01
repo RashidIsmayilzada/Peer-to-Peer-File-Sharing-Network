@@ -8,35 +8,15 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Base64;
 
-/**
- * Response containing chunk data.
- *
- * Example:
- * "Here's chunk #5 of file abc123: [binary data...]"
- */
+// Response containing chunk data (Base64 encoded)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChunkResponseMessage extends Message {
-    /**
-     * The file ID this chunk belongs to.
-     */
-    private final String fileId;
-
-    /**
-     * The index of this chunk.
-     */
-    private final int chunkIndex;
-
-    /**
-     * The actual chunk data, Base64-encoded for JSON transport.
-     */
-    private final String data;
-
-    /**
-     * SHA-256 hash of the chunk (for verification).
-     */
-    private final String hash;
+    private final String fileId;      // File this chunk belongs to
+    private final int chunkIndex;     // Chunk index
+    private final String data;        // Base64-encoded chunk data
+    private final String hash;        // SHA-256 hash for verification
 
     @JsonCreator
     public ChunkResponseMessage(
@@ -50,9 +30,7 @@ public class ChunkResponseMessage extends Message {
         this.hash = hash;
     }
 
-    /**
-     * Constructor that takes raw bytes and encodes them.
-     */
+    // Constructor accepting raw bytes (encodes to Base64)
     public ChunkResponseMessage(String fileId, int chunkIndex, byte[] rawData, String hash) {
         this.fileId = fileId;
         this.chunkIndex = chunkIndex;
@@ -60,9 +38,7 @@ public class ChunkResponseMessage extends Message {
         this.hash = hash;
     }
 
-    /**
-     * Decodes the Base64 data back to raw bytes.
-     */
+    // Decodes Base64 data back to raw bytes
     public byte[] getDataBytes() {
         return Base64.getDecoder().decode(data);
     }

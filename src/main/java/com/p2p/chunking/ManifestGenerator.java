@@ -11,14 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-/**
- * Generates manifests for files.
- *
- * A manifest is like a table of contents that describes:
- * - What the file is (name, size)
- * - How it's divided (chunk size, number of chunks)
- * - How to verify each piece (chunk hashes)
- */
+// Generates manifests for files
 public class ManifestGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ManifestGenerator.class);
 
@@ -32,28 +25,13 @@ public class ManifestGenerator {
         this.chunker = chunker;
     }
 
-    /**
-     * Generates a manifest for a file.
-     *
-     * Steps:
-     * 1. Chunk the file and get chunk info (index, hash, size)
-     * 2. Create a manifest with file metadata
-     * 3. Calculate a unique file ID (hash of the manifest data)
-     *
-     * @param file The file to generate a manifest for
-     * @return A complete Manifest object
-     */
+    // Generates a manifest for a file
     public Manifest generateManifest(File file) throws IOException {
         logger.info("Generating manifest for file: {}", file.getName());
 
-        // Get chunk information
         List<ChunkInfo> chunks = chunker.chunkFile(file);
-
-        // Generate a unique file ID
-        // We use hash of (filename + filesize + chunk count) as a simple file ID
         String fileId = generateFileId(file, chunks);
 
-        // Create manifest
         Manifest manifest = new Manifest(
                 fileId,
                 file.getName(),
@@ -68,30 +46,14 @@ public class ManifestGenerator {
         return manifest;
     }
 
-    /**
-     * Generates a unique file ID based on file metadata.
-     *
-     * This creates a unique identifier by hashing:
-     * - Filename
-     * - File size
-     * - All chunk hashes concatenated
-     *
-     * This ensures that:
-     * - Same file = same ID
-     * - Different file = different ID
-     * - Modified file = different ID
-     */
+    // Generates a unique file ID based on file metadata and chunk hashes
     private String generateFileId(File file, List<ChunkInfo> chunks) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
-            // Add filename
             digest.update(file.getName().getBytes());
-
-            // Add file size
             digest.update(longToBytes(file.length()));
 
-            // Add all chunk hashes
             for (ChunkInfo chunk : chunks) {
                 digest.update(chunk.getHash().getBytes());
             }
@@ -103,9 +65,7 @@ public class ManifestGenerator {
         }
     }
 
-    /**
-     * Converts a long to bytes.
-     */
+    // Converts a long to bytes
     private byte[] longToBytes(long value) {
         byte[] result = new byte[8];
         for (int i = 7; i >= 0; i--) {
@@ -115,9 +75,7 @@ public class ManifestGenerator {
         return result;
     }
 
-    /**
-     * Converts bytes to hexadecimal string.
-     */
+    // Converts bytes to hexadecimal string
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {

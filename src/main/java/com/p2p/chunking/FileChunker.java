@@ -12,25 +12,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Splits files into fixed-size chunks and generates hashes for each chunk.
- *
- * Think of this like a paper shredder that:
- * - Cuts a document into equal-sized strips
- * - Numbers each strip (0, 1, 2, ...)
- * - Takes a fingerprint of each strip (SHA-256 hash)
- * - Remembers how big each strip is
- */
+// Splits files into fixed-size chunks and generates hashes for each chunk
 public class FileChunker {
     private static final Logger logger = LoggerFactory.getLogger(FileChunker.class);
 
-    /**
-     * Default chunk size: 256 KiB (262,144 bytes).
-     * This is a good balance between:
-     * - Not too small (overhead)
-     * - Not too large (parallelism)
-     */
-    public static final int DEFAULT_CHUNK_SIZE = 256 * 1024; // 256 KiB
+    // Default chunk size: 256 KiB
+    public static final int DEFAULT_CHUNK_SIZE = 256 * 1024;
 
     private final int chunkSize;
 
@@ -45,17 +32,7 @@ public class FileChunker {
         this.chunkSize = chunkSize;
     }
 
-    /**
-     * Splits a file into chunks and returns metadata about each chunk.
-     *
-     * Example:
-     * - File: 1 MB (1,048,576 bytes)
-     * - Chunk size: 256 KB (262,144 bytes)
-     * - Result: 4 chunks (0, 1, 2, 3)
-     *
-     * @param file The file to chunk
-     * @return List of ChunkInfo with index, hash, and size for each chunk
-     */
+    // Splits a file into chunks and returns metadata about each chunk
     public List<ChunkInfo> chunkFile(File file) throws IOException {
         if (!file.exists()) {
             throw new IOException("File not found: " + file.getAbsolutePath());
@@ -75,10 +52,7 @@ public class FileChunker {
         try (FileInputStream fis = new FileInputStream(file)) {
             int bytesRead;
             while ((bytesRead = fis.read(buffer)) != -1) {
-                // Calculate hash of this chunk
                 String hash = calculateHash(buffer, bytesRead);
-
-                // Create chunk info
                 ChunkInfo chunkInfo = new ChunkInfo(chunkIndex, hash, bytesRead);
                 chunks.add(chunkInfo);
 
@@ -91,13 +65,7 @@ public class FileChunker {
         return chunks;
     }
 
-    /**
-     * Reads a specific chunk from a file.
-     *
-     * @param file The file to read from
-     * @param chunkIndex The index of the chunk to read (0-based)
-     * @return The chunk data as bytes
-     */
+    // Reads a specific chunk from a file by index
     public byte[] readChunk(File file, int chunkIndex) throws IOException {
         if (chunkIndex < 0) {
             throw new IllegalArgumentException("Chunk index must be non-negative");
@@ -110,13 +78,11 @@ public class FileChunker {
         }
 
         try (FileInputStream fis = new FileInputStream(file)) {
-            // Skip to the chunk position
             long skipped = fis.skip(offset);
             if (skipped != offset) {
                 throw new IOException("Failed to skip to chunk position");
             }
 
-            // Read the chunk
             byte[] buffer = new byte[chunkSize];
             int bytesRead = fis.read(buffer);
 
@@ -124,20 +90,13 @@ public class FileChunker {
                 throw new IOException("Failed to read chunk");
             }
 
-            // Return exact size (last chunk might be smaller)
             byte[] chunk = new byte[bytesRead];
             System.arraycopy(buffer, 0, chunk, 0, bytesRead);
             return chunk;
         }
     }
 
-    /**
-     * Calculates SHA-256 hash of data.
-     *
-     * @param data The data to hash
-     * @param length The number of bytes to hash (may be less than data.length)
-     * @return Hex string representation of the hash
-     */
+    // Calculates SHA-256 hash of data
     private String calculateHash(byte[] data, int length) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -148,11 +107,7 @@ public class FileChunker {
         }
     }
 
-    /**
-     * Converts bytes to hexadecimal string.
-     *
-     * Example: [0x1A, 0x2B] → "1a2b"
-     */
+    // Converts bytes to hexadecimal string
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -161,9 +116,7 @@ public class FileChunker {
         return sb.toString();
     }
 
-    /**
-     * Calculates the number of chunks for a file of given size.
-     */
+    // Calculates the number of chunks for a file of given size
     public int calculateChunkCount(long fileSize) {
         return (int) ((fileSize + chunkSize - 1) / chunkSize);
     }

@@ -12,14 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Netty-based TCP client for connecting to other peers.
- *
- * Think of this as your car that takes you to visit other peers:
- * - You drive to their address (host:port)
- * - You park and enter their house (establish connection)
- * - You can talk to them (send/receive messages)
- */
+// Netty-based TCP client for connecting to other peers
 public class PeerClient {
     private static final Logger logger = LoggerFactory.getLogger(PeerClient.class);
 
@@ -32,9 +25,7 @@ public class PeerClient {
     private EventLoopGroup workerGroup;
     private Channel channel;
 
-    /**
-     * Temporary storage for available file IDs.
-     */
+    // Temporary storage for available file IDs
     private final List<String> availableFiles = new ArrayList<>();
 
     public PeerClient(String localPeerId, int localPort) {
@@ -42,12 +33,7 @@ public class PeerClient {
         this.localPort = localPort;
     }
 
-    /**
-     * Connects to a remote peer.
-     *
-     * @param host Remote peer's hostname or IP
-     * @param port Remote peer's port
-     */
+    // Connects to a remote peer at the specified host and port
     public void connect(String host, int port) throws InterruptedException {
         workerGroup = new NioEventLoopGroup();
 
@@ -59,30 +45,24 @@ public class PeerClient {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
-                            // Add codec for message encoding/decoding
                             pipeline.addLast(new MessageCodec());
-                            // Add our handler for processing messages
                             pipeline.addLast(new PeerClientHandler(PeerClient.this));
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
 
-            // Connect to the remote peer
             ChannelFuture future = bootstrap.connect(host, port).sync();
             channel = future.channel();
 
             logger.info("Connected to peer at {}:{}", host, port);
 
-            // Wait until the connection is closed
             channel.closeFuture().sync();
         } finally {
             disconnect();
         }
     }
 
-    /**
-     * Disconnects from the peer and cleans up resources.
-     */
+    // Disconnects from the peer and cleans up resources
     public void disconnect() {
         logger.info("Disconnecting from peer...");
         if (workerGroup != null) {
@@ -90,16 +70,12 @@ public class PeerClient {
         }
     }
 
-    /**
-     * Returns list of file IDs this peer has available.
-     */
+    // Returns list of file IDs this peer has available
     public List<String> getAvailableFiles() {
         return new ArrayList<>(availableFiles);
     }
 
-    /**
-     * Sends a message to the connected peer.
-     */
+    // Sends a message to the connected peer
     public void sendMessage(Object message) {
         if (channel != null && channel.isActive()) {
             channel.writeAndFlush(message);

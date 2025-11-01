@@ -9,14 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
-/**
- * Handles incoming messages from other peers.
- *
- * Think of this as a receptionist who:
- * - Greets visitors (HELLO messages)
- * - Answers questions (MANIFEST_REQUEST, CHUNK_REQUEST)
- * - Routes messages to the right handlers
- */
+// Handles incoming messages from other peers
 public class PeerServerHandler extends SimpleChannelInboundHandler<Message> {
     private static final Logger logger = LoggerFactory.getLogger(PeerServerHandler.class);
     private final PeerServer server;

@@ -18,24 +18,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Manages downloading a file from a peer.
- *
- * This orchestrates the entire download process:
- * 1. Connect to peer
- * 2. Request manifest
- * 3. Download all chunks
- * 4. Verify and assemble file
- */
+// Manages downloading a file from a peer
 public class DownloadManager {
     private static final Logger logger = LoggerFactory.getLogger(DownloadManager.class);
-    private static final int TIMEOUT_SECONDS = 120; // 2 minutes per chunk (for large files or slow networks)
+    private static final int TIMEOUT_SECONDS = 120;
 
     private final String localPeerId;
     private final int localPort;
     private final ChunkStorage chunkStorage;
 
-    // Queues for receiving responses
     private final BlockingQueue<Manifest> manifestQueue = new LinkedBlockingQueue<>();
     private final BlockingQueue<ChunkResponseMessage> chunkQueue = new LinkedBlockingQueue<>();
 
@@ -45,15 +36,7 @@ public class DownloadManager {
         this.chunkStorage = chunkStorage;
     }
 
-    /**
-     * Downloads a file from a peer.
-     *
-     * @param fileId The file ID to download
-     * @param peerHost The peer's hostname
-     * @param peerPort The peer's port
-     * @param outputFile Where to save the downloaded file
-     * @return The manifest of the downloaded file (contains original filename)
-     */
+    // Downloads a file from a peer and saves it to the specified output file
     public Manifest downloadFile(String fileId, String peerHost, int peerPort, File outputFile) throws Exception {
         logger.info("Starting download of file: {} from {}:{}", fileId, peerHost, peerPort);
 
@@ -67,9 +50,7 @@ public class DownloadManager {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
-                            // Add frame decoder to handle length-prefixed messages
-                            // Parameters: maxFrameLength, lengthFieldOffset, lengthFieldLength, lengthAdjustment, initialBytesToStrip
-                            // Max frame size: 100MB (to support large files and manifests)
+                            // Frame decoder with 100MB max frame size for large files
                             pipeline.addLast(new LengthFieldBasedFrameDecoder(100 * 1024 * 1024, 0, 4, 0, 4));
                             pipeline.addLast(new MessageCodec());
                             pipeline.addLast(new DownloadHandler());
@@ -77,22 +58,18 @@ public class DownloadManager {
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
 
-            // Connect to peer
             ChannelFuture future = bootstrap.connect(peerHost, peerPort).sync();
             Channel channel = future.channel();
 
             logger.info("Connected to peer at {}:{}", peerHost, peerPort);
 
-            // Send HELLO
             HelloMessage hello = new HelloMessage(localPeerId, java.util.Collections.emptyList(), localPort);
             channel.writeAndFlush(hello).sync();
 
-            // Request manifest
             logger.info("Requesting manifest for file: {}", fileId);
             ManifestRequestMessage manifestRequest = new ManifestRequestMessage(fileId);
             channel.writeAndFlush(manifestRequest).sync();
 
-            // Wait for manifest response
             Manifest manifest = manifestQueue.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             if (manifest == null) {
                 throw new RuntimeException("Timeout waiting for manifest");
@@ -100,8 +77,6 @@ public class DownloadManager {
 
             logger.info("Received manifest: {} ({} chunks)", manifest.getFilename(), manifest.getChunkCount());
 
-            // Download chunks and write directly to file (streaming approach)
-            // This avoids loading all chunks into memory at once
             logger.info("Starting streaming download to: {}", outputFile.getAbsolutePath());
 
             try (java.io.FileOutputStream fos = new java.io.FileOutputStream(outputFile)) {
@@ -111,7 +86,6 @@ public class DownloadManager {
                     ChunkRequestMessage chunkRequest = new ChunkRequestMessage(fileId, i);
                     channel.writeAndFlush(chunkRequest).sync();
 
-                    // Wait for chunk response
                     ChunkResponseMessage chunkResponse = chunkQueue.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS);
                     if (chunkResponse == null) {
                         throw new RuntimeException("Timeout waiting for chunk " + i);
@@ -119,16 +93,13 @@ public class DownloadManager {
 
                     byte[] chunkData = chunkResponse.getDataBytes();
 
-                    // Verify chunk hash
                     String expectedHash = manifest.getChunk(i).getHash();
                     if (!chunkResponse.getHash().equals(expectedHash)) {
                         throw new RuntimeException("Chunk " + i + " hash mismatch!");
                     }
 
-                    // Store chunk for future sharing
                     chunkStorage.storeChunk(chunkResponse.getHash(), chunkData);
 
-                    // Write chunk directly to output file (streaming)
                     fos.write(chunkData);
                     fos.flush();
 
@@ -137,10 +108,7 @@ public class DownloadManager {
                 }
             }
 
-            // Close connection
             channel.close().sync();
-
-            logger.info("Download and assembly complete: {}", outputFile.getName());
 
             logger.info("Download complete: {}", outputFile.getName());
 
@@ -151,9 +119,7 @@ public class DownloadManager {
         }
     }
 
-    /**
-     * Handler for download responses.
-     */
+    // Handler for download responses
     private class DownloadHandler extends SimpleChannelInboundHandler<Message> {
 
         @Override
@@ -163,7 +129,6 @@ public class DownloadManager {
             try {
                 switch (msg.getType()) {
                     case HELLO:
-                        // Ignore HELLO responses
                         logger.debug("Received HELLO response");
                         break;
 

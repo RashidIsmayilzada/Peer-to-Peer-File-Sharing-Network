@@ -11,30 +11,21 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * Codec for encoding/decoding messages to/from JSON over the network.
- *
- * Think of this as a translator:
- * - Outgoing: Converts Java objects → JSON → bytes with length prefix
- * - Incoming: Converts bytes → JSON → Java objects (after LengthFieldBasedFrameDecoder)
- */
+// Codec for encoding/decoding messages to/from JSON over the network
 public class MessageCodec extends MessageToMessageCodec<ByteBuf, Message> {
     private static final Logger logger = LoggerFactory.getLogger(MessageCodec.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * Encodes a Message object to JSON bytes with a 4-byte length prefix.
-     */
+    // Encodes a Message object to JSON bytes with a 4-byte length prefix
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
         try {
             String json = objectMapper.writeValueAsString(msg);
             byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 
-            // Create a buffer with length prefix (4 bytes) + JSON data
             ByteBuf buffer = ctx.alloc().buffer(4 + bytes.length);
-            buffer.writeInt(bytes.length);  // Length prefix
-            buffer.writeBytes(bytes);       // JSON data
+            buffer.writeInt(bytes.length);
+            buffer.writeBytes(bytes);
             out.add(buffer);
 
             logger.debug("Encoded message: {} ({} bytes)", msg.getType(), bytes.length);
@@ -44,14 +35,10 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, Message> {
         }
     }
 
-    /**
-     * Decodes JSON bytes to a Message object.
-     * Note: LengthFieldBasedFrameDecoder strips the length prefix before this is called.
-     */
+    // Decodes JSON bytes to a Message object (length prefix already removed by frame decoder)
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
         try {
-            // Read all available bytes (length prefix already removed by frame decoder)
             byte[] bytes = new byte[msg.readableBytes()];
             msg.readBytes(bytes);
             String json = new String(bytes, StandardCharsets.UTF_8);

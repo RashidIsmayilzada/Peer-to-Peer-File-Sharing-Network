@@ -1,14 +1,6 @@
 package com.p2p.cli;
 
-/**
- * Parses command-line arguments into a CLIArguments object.
- *
- * Supported arguments:
- * --seed <filepath>        : Seed a file (share it with network)
- * --download <fileId>      : Download a file by its ID
- * --port <number>          : Port to listen on (default: 6881)
- * --bootstrap <host:port>  : Bootstrap peer to connect to initially
- */
+// Parses command-line arguments into a CLIArguments object
 public class CLIParser {
 
     public static CLIArguments parse(String[] args) throws IllegalArgumentException {

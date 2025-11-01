@@ -6,14 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Handles responses when we connect to other peers as a client.
- *
- * Think of this as your personal assistant when you visit someone else's house:
- * - Introduces you (sends HELLO)
- * - Listens to responses
- * - Handles what you receive
- */
+// Handles responses when we connect to other peers as a client
 public class PeerClientHandler extends SimpleChannelInboundHandler<Message> {
     private static final Logger logger = LoggerFactory.getLogger(PeerClientHandler.class);
     private final PeerClient client;
@@ -26,7 +19,6 @@ public class PeerClientHandler extends SimpleChannelInboundHandler<Message> {
     public void channelActive(ChannelHandlerContext ctx) {
         logger.info("Connected to peer: {}", ctx.channel().remoteAddress());
 
-        // Send HELLO message when connection is established
         HelloMessage hello = new HelloMessage(
                 client.getLocalPeerId(),
                 client.getAvailableFiles(),

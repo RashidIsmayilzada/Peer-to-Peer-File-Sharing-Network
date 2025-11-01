@@ -6,25 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * Request for a specific chunk of a file.
- *
- * Example:
- * "Please send me chunk #5 of file abc123"
- */
+// Request for a specific chunk of a file
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChunkRequestMessage extends Message {
-    /**
-     * The file ID containing the chunk.
-     */
-    private final String fileId;
-
-    /**
-     * The index of the chunk we want (0-based).
-     */
-    private final int chunkIndex;
+    private final String fileId;      // File containing the chunk
+    private final int chunkIndex;     // Chunk index to retrieve
 
     @JsonCreator
     public ChunkRequestMessage(

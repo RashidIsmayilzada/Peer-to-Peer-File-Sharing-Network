@@ -5,18 +5,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-/**
- * Message to request list of known peers from another peer.
- */
+// Request for list of known peers from another peer
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PeerListRequestMessage extends Message {
-
-    public PeerListRequestMessage(int ignored) {
-        // Constructor for Jackson, no fields needed
-    }
 
     @Override
     public MessageType getType() {

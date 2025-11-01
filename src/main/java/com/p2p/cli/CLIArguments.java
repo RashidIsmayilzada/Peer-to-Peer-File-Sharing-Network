@@ -2,51 +2,21 @@ package com.p2p.cli;
 
 import lombok.Data;
 
-/**
- * Holds parsed command-line arguments.
- *
- * Example usage:
- * java -jar peer.jar --seed myfile.txt --port 6881
- * java -jar peer.jar --download abc123 --bootstrap localhost:6881 --port 6882
- */
+// Holds parsed command-line arguments
 @Data
 public class CLIArguments {
-    /**
-     * Mode: SEED or DOWNLOAD
-     */
     private Mode mode;
-
-    /**
-     * Port to listen on (default: 6881)
-     */
     private int port = 6881;
-
-    /**
-     * Path to file to seed (for SEED mode)
-     */
     private String seedFile;
-
-    /**
-     * File ID to download (for DOWNLOAD mode)
-     */
     private String downloadFileId;
-
-    /**
-     * Bootstrap peer address in format "host:port" (for DOWNLOAD mode)
-     */
     private String bootstrap;
 
-    /**
-     * Operating mode
-     */
     public enum Mode {
-        SEED,     // Share a file with others
-        DOWNLOAD  // Download a file from others
+        SEED,
+        DOWNLOAD
     }
 
-    /**
-     * Validates that required arguments are present for the selected mode.
-     */
+    // Validates that required arguments are present for the selected mode
     public void validate() throws IllegalArgumentException {
         if (mode == null) {
             throw new IllegalArgumentException("Mode must be specified (--seed or --download)");

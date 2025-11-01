@@ -6,20 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * Request for a file's manifest (metadata).
- *
- * Example:
- * "Hey, can you send me the manifest for file abc123?"
- */
+// Request for a file's manifest by file ID
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ManifestRequestMessage extends Message {
-    /**
-     * The file ID we want the manifest for.
-     */
-    private final String fileId;
+    private final String fileId;  // Requested file ID
 
     @JsonCreator
     public ManifestRequestMessage(@JsonProperty("fileId") String fileId) {

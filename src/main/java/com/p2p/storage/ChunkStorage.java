@@ -12,85 +12,45 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Manages storage and retrieval of file chunks.
- *
- * Think of this as a warehouse that:
- * - Stores boxes (chunks) in organized shelves
- * - Each box has a label (hash)
- * - Can quickly find and retrieve any box
- * - Verifies boxes haven't been damaged
- *
- * Storage structure:
- * .chunks/
- *   ab/
- *     abc123def456...  (chunk file named by hash)
- *   cd/
- *     cde789fgh012...
- */
+// Manages storage and retrieval of file chunks
 public class ChunkStorage {
     private static final Logger logger = LoggerFactory.getLogger(ChunkStorage.class);
 
     private final Path storageRoot;
 
-    /**
-     * Creates a ChunkStorage with default storage directory ".chunks"
-     */
+    // Creates a ChunkStorage with default storage directory ".chunks"
     public ChunkStorage() {
         this(Paths.get(".chunks"));
     }
 
-    /**
-     * Creates a ChunkStorage with custom storage directory.
-     *
-     * @param storageRoot Root directory for chunk storage
-     */
+    // Creates a ChunkStorage with custom storage directory
     public ChunkStorage(Path storageRoot) {
         this.storageRoot = storageRoot;
         ensureStorageExists();
     }
 
-    /**
-     * Stores a chunk with the given hash.
-     *
-     * The chunk is stored in a two-level directory structure:
-     * - First 2 chars of hash = subdirectory
-     * - Full hash = filename
-     *
-     * Example: hash "abc123..." → stored at ".chunks/ab/abc123..."
-     *
-     * Why? To avoid having thousands of files in one directory.
-     */
+    // Stores a chunk with the given hash using two-level directory structure
     public void storeChunk(String hash, byte[] data) throws IOException {
         if (hash == null || hash.length() < 2) {
             throw new IllegalArgumentException("Invalid hash");
         }
 
-        // Verify the data matches the hash
         String actualHash = calculateHash(data);
         if (!actualHash.equals(hash)) {
             throw new IOException("Data hash doesn't match expected hash");
         }
 
-        // Create subdirectory (first 2 chars of hash)
         String subdir = hash.substring(0, 2);
         Path subdirPath = storageRoot.resolve(subdir);
         Files.createDirectories(subdirPath);
 
-        // Write chunk file
         Path chunkPath = subdirPath.resolve(hash);
         Files.write(chunkPath, data);
 
         logger.debug("Stored chunk: {} ({} bytes)", hash.substring(0, 8) + "...", data.length);
     }
 
-    /**
-     * Retrieves a chunk by its hash.
-     *
-     * @param hash The hash of the chunk to retrieve
-     * @return The chunk data as bytes
-     * @throws IOException If chunk doesn't exist or can't be read
-     */
+    // Retrieves a chunk by its hash
     public byte[] retrieveChunk(String hash) throws IOException {
         Path chunkPath = getChunkPath(hash);
 
@@ -100,7 +60,6 @@ public class ChunkStorage {
 
         byte[] data = Files.readAllBytes(chunkPath);
 
-        // Verify integrity
         String actualHash = calculateHash(data);
         if (!actualHash.equals(hash)) {
             logger.error("Chunk integrity check failed: {}", hash);
@@ -111,16 +70,12 @@ public class ChunkStorage {
         return data;
     }
 
-    /**
-     * Checks if a chunk with the given hash exists in storage.
-     */
+    // Checks if a chunk with the given hash exists in storage
     public boolean hasChunk(String hash) {
         return Files.exists(getChunkPath(hash));
     }
 
-    /**
-     * Deletes a chunk from storage.
-     */
+    // Deletes a chunk from storage
     public void deleteChunk(String hash) throws IOException {
         Path chunkPath = getChunkPath(hash);
         if (Files.exists(chunkPath)) {
@@ -129,9 +84,7 @@ public class ChunkStorage {
         }
     }
 
-    /**
-     * Gets the file path for a chunk with the given hash.
-     */
+    // Gets the file path for a chunk with the given hash
     private Path getChunkPath(String hash) {
         if (hash == null || hash.length() < 2) {
             throw new IllegalArgumentException("Invalid hash");
@@ -140,9 +93,7 @@ public class ChunkStorage {
         return storageRoot.resolve(subdir).resolve(hash);
     }
 
-    /**
-     * Ensures the storage root directory exists.
-     */
+    // Ensures the storage root directory exists
     private void ensureStorageExists() {
         try {
             Files.createDirectories(storageRoot);
@@ -153,9 +104,7 @@ public class ChunkStorage {
         }
     }
 
-    /**
-     * Calculates SHA-256 hash of data.
-     */
+    // Calculates SHA-256 hash of data
     private String calculateHash(byte[] data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -166,9 +115,7 @@ public class ChunkStorage {
         }
     }
 
-    /**
-     * Converts bytes to hexadecimal string.
-     */
+    // Converts bytes to hexadecimal string
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -177,9 +124,7 @@ public class ChunkStorage {
         return sb.toString();
     }
 
-    /**
-     * Returns the storage root path.
-     */
+    // Returns the storage root path
     public Path getStorageRoot() {
         return storageRoot;
     }

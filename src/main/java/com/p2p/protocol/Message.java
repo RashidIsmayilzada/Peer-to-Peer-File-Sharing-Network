@@ -3,16 +3,7 @@ package com.p2p.protocol;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-/**
- * Base class for all protocol messages exchanged between peers.
- *
- * Think of messages like different types of letters you can send:
- * - HELLO: "Hi, I'm peer X, nice to meet you!"
- * - MANIFEST_REQUEST: "Can you send me the recipe for file Y?"
- * - MANIFEST_RESPONSE: "Sure, here's the recipe..."
- * - CHUNK_REQUEST: "Please send me chunk #5 of file Y"
- * - CHUNK_RESPONSE: "Here's the data for chunk #5"
- */
+// Base class for all P2P protocol messages
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -28,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = PeerListResponseMessage.class, name = "PEER_LIST_RESPONSE")
 })
 public abstract class Message {
-    /**
-     * Returns the type of this message.
-     */
+    // Returns the type of this message
     public abstract MessageType getType();
 }
