@@ -1,0 +1,31 @@
+# Maven build
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+dependency-reduced-pom.xml
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# P2P Storage
+.chunks/
+manifests/
+downloads/
+
+# Temporary test files
+mytest.txt
+fileA.txt
+fileB.txt
