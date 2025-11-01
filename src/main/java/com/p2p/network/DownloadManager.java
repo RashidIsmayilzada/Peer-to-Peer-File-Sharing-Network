@@ -50,8 +50,8 @@ public class DownloadManager {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
-                            // Frame decoder with 100MB max frame size for large files
-                            pipeline.addLast(new LengthFieldBasedFrameDecoder(100 * 1024 * 1024, 0, 4, 0, 4));
+                            // Frame decoder with 2MB max frame size (sufficient for 256KB chunks + overhead)
+                            pipeline.addLast(new LengthFieldBasedFrameDecoder(2 * 1024 * 1024, 0, 4, 0, 4));
                             pipeline.addLast(new MessageCodec());
                             pipeline.addLast(new DownloadHandler());
                         }
