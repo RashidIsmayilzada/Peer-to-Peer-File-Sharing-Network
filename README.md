@@ -21,12 +21,12 @@ java -jar target/peer.jar --download <FILE_ID> --bootstrap <HOST>:8001 --port 80
 
 ## ✨ Features
 
-- 🌐 Fully decentralized (no server needed)
-- 📦 Chunked transfer (256KB chunks)
-- ✅ SHA-256 verification
-- 💾 Memory efficient streaming (O(1) memory usage)
-- 🔍 Automatic peer discovery
-- 🌍 Cross-device support
+- Fully decentralized (no server needed)
+- Chunked transfer (256KB chunks)
+- SHA-256 verification
+- Memory efficient streaming (O(1) memory usage)
+- Automatic peer discovery
+- Cross-device support
 
 ## 🛠️ Tech Stack
 
